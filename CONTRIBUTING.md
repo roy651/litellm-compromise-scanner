@@ -38,7 +38,7 @@ If the TeamPCP attack evolves — new persistence mechanisms, additional C2 doma
 - Keep the script POSIX-bash compatible (`#!/usr/bin/env bash`, `set -euo pipefail`)
 - All `find` commands must use `-print0` / `read -d ''` for safe filename handling
 - All `find` commands must append `2>/dev/null || true` to suppress permission errors
-- Run `shellcheck scan_litellm_compromise.sh` before submitting — it must pass clean
+- Run `shellcheck scan_litellm_compromise.sh quick_triage.sh` before submitting — both must pass clean
 - No external dependencies beyond coreutils, bash, and optional tools (kubectl, docker, etc.)
 
 ## Running shellcheck locally
@@ -49,7 +49,7 @@ brew install shellcheck        # macOS
 apt-get install shellcheck     # Debian/Ubuntu
 
 # Run
-shellcheck scan_litellm_compromise.sh
+shellcheck scan_litellm_compromise.sh quick_triage.sh
 ```
 
 ## Testing

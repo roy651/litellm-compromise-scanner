@@ -11,19 +11,32 @@ One-command scanner for the TeamPCP / LiteLLM supply chain attack (March 24, 202
 
 ## Quick start
 
+Two scripts, two use cases:
+
+| Script | Time | What it covers |
+|--------|------|----------------|
+| `quick_triage.sh` | ~30 seconds | Active Python envs, known cache paths, persistence, C2 connections |
+| `scan_litellm_compromise.sh` | 2–3 hours | Full `$HOME` scan — all venvs, conda, pyenv, uv, rye, lockfiles, Dockerfiles |
+
+**Start with the quick triage.** If it finds issues — or if you want full confidence — follow up with the full scan.
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_ORG/litellm-malware-scan/main/scan_litellm_compromise.sh \
-  | bash
+# Step 1 — quick triage (~30 seconds)
+curl -fsSL https://raw.githubusercontent.com/roy651/litellm-compromise-scanner/main/quick_triage.sh \
+  -o quick_triage.sh && chmod +x quick_triage.sh && ./quick_triage.sh
+
+# Step 2 — full scan if issues found, or for complete coverage (2-3 hours)
+curl -fsSL https://raw.githubusercontent.com/roy651/litellm-compromise-scanner/main/scan_litellm_compromise.sh \
+  -o scan_litellm_compromise.sh && chmod +x scan_litellm_compromise.sh && ./scan_litellm_compromise.sh
 ```
 
-> **Security note:** Piping a shell script directly from the internet is convenient — but it's also exactly the kind of trust assumption that supply chain attacks exploit. Before running, consider:
+> **Security note:** Piping a shell script directly from the internet is convenient — but it's also exactly the kind of trust assumption that supply chain attacks exploit. Download first, inspect, then run:
 >
 > ```bash
-> # Download first, inspect, then run
-> curl -fsSL https://raw.githubusercontent.com/YOUR_ORG/litellm-malware-scan/main/scan_litellm_compromise.sh \
->   -o scan_litellm_compromise.sh
-> less scan_litellm_compromise.sh   # read it
-> chmod +x scan_litellm_compromise.sh && ./scan_litellm_compromise.sh
+> curl -fsSL https://raw.githubusercontent.com/roy651/litellm-compromise-scanner/main/quick_triage.sh \
+>   -o quick_triage.sh
+> less quick_triage.sh   # read it
+> chmod +x quick_triage.sh && ./quick_triage.sh
 > ```
 
 ---
@@ -69,6 +82,20 @@ litellm is a transitive dependency of many AI frameworks — CrewAI, DSPy, LangG
 
 ## Usage
 
+### Quick triage (`quick_triage.sh`)
+
+```
+Usage: quick_triage.sh [--json] [--quiet] [--no-color]
+```
+
+```bash
+./quick_triage.sh                     # standard triage
+./quick_triage.sh --quiet             # findings only, no banners
+./quick_triage.sh --json | jq .       # JSON output
+```
+
+### Full scan (`scan_litellm_compromise.sh`)
+
 ```
 Usage: scan_litellm_compromise.sh [OPTIONS] [SCAN_ROOT]
 
@@ -85,17 +112,12 @@ Options:
 Exit code = number of issues found (0 = clean)
 ```
 
-**Examples:**
-
 ```bash
 # Standard scan of $HOME
 ./scan_litellm_compromise.sh
 
 # Scan entire filesystem (slower, more thorough)
 sudo ./scan_litellm_compromise.sh /
-
-# Quiet mode: only print findings, suppress banners and progress
-./scan_litellm_compromise.sh --quiet
 
 # JSON output for further processing
 ./scan_litellm_compromise.sh --json | jq '.findings'
@@ -115,13 +137,13 @@ The script is designed to work in CI environments — non-interactive, exit code
 **GitHub Actions example:**
 
 ```yaml
-- name: Scan for LiteLLM supply chain compromise
+- name: LiteLLM compromise triage
   run: |
-    curl -fsSL https://raw.githubusercontent.com/YOUR_ORG/litellm-malware-scan/main/scan_litellm_compromise.sh \
-      -o scan_litellm_compromise.sh
-    chmod +x scan_litellm_compromise.sh
-    ./scan_litellm_compromise.sh --json > scan-report.json
-    cat scan-report.json
+    curl -fsSL https://raw.githubusercontent.com/roy651/litellm-compromise-scanner/main/quick_triage.sh \
+      -o quick_triage.sh
+    chmod +x quick_triage.sh
+    ./quick_triage.sh --json > triage-report.json
+    cat triage-report.json
     # Exit code is the number of issues found
 ```
 
