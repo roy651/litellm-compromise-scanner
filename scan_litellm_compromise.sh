@@ -249,7 +249,7 @@ check_installed_versions() {
         fi
     done
 
-    start_spinner "Checking ${#unique_pips[@]+"${#unique_pips[@]}"} pip environment(s) + site-packages"
+    start_spinner "Checking ${#unique_pips[@]} pip environment(s) + site-packages"
     for pip_cmd in "${unique_pips[@]+"${unique_pips[@]}"}"; do
         local ver
         ver=$("$pip_cmd" show litellm 2>/dev/null | grep -i '^Version:' | awk '{print $2}') || true
@@ -629,7 +629,7 @@ print_json() {
     printf '  "scan_time": "%s",\n' "$scan_time"
     printf '  "issues_found": %d,\n' "$FOUND_ISSUES"
     printf '  "findings": ['
-    local total=${#JSON_FINDINGS[@]+"${#JSON_FINDINGS[@]}"}
+    local total=${#JSON_FINDINGS[@]}
     if [[ "${total:-0}" -eq 0 ]]; then
         printf ']\n'
     else
